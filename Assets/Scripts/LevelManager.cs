@@ -22,7 +22,7 @@ namespace FirstPartyGames.BubbleShooter
 		public Grid grid;
 		public Transform bubblesArea;
 		public List<GameObject> bubblesPrefabs;
-		public GameObject specialBubblePrefab;
+		//public GameObject specialBubblePrefab;
 		public List<GameObject> bubblesInScene;
 		public List<GameObject> levels;
 		public List<string> colorsInScene;
@@ -39,13 +39,14 @@ namespace FirstPartyGames.BubbleShooter
 			GameManager.instance.startUI.SetActive(false);
 			GameManager.instance.levelsUI.SetActive(true);
 			int randomLevel = Random.Range(0, levels.Count);
+			GameManager.instance.StartTimer();
 			StartLevel(randomLevel);
 		}
 
 
 		public void NextLevel()
 		{
-			GameManager.instance.WinMenu.SetActive(false);
+			GameManager.instance.winMenu.SetActive(false);
 			StartLevel(currentLevel + 1);
 		}
 
@@ -70,7 +71,7 @@ namespace FirstPartyGames.BubbleShooter
 			FillWithBubbles(levelToLoad, bubblesPrefabs);
 
 			SnapChildrensToGrid(bubblesArea);
-			InsertSpecialBubbles();
+			//InsertSpecialBubbles();
 			UpdateListOfBubblesInScene();
 
 			GameManager.instance.shootScript.CreateNewBubbles();
@@ -99,7 +100,7 @@ namespace FirstPartyGames.BubbleShooter
 				if (!specials.Contains(bubble))
 				{
 					specials.Add(bubble);
-					Instantiate(specialBubblePrefab, bubble.position, Quaternion.identity, bubblesArea);
+					//Instantiate(specialBubblePrefab, bubble.position, Quaternion.identity, bubblesArea);
 					Destroy(bubble.gameObject);
 				}
 			}

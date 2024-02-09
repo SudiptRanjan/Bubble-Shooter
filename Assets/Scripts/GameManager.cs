@@ -15,10 +15,11 @@ namespace FirstPartyGames.BubbleShooter
 			if (instance == null)
 				instance = this;
 
-			WinMenu.SetActive(false);
+			winMenu.SetActive(false);
 			LoseMenu.SetActive(false);
 			levelsUI.SetActive(false);
-			sequenceBubbles = new List<Transform>();
+            StartTimer();
+            sequenceBubbles = new List<Transform>();
 			connectedBubbles = new List<Transform>();
 			bubblesToDrop = new List<Transform>();
 			bubblesToDissolve = new List<Transform>();
@@ -33,8 +34,8 @@ namespace FirstPartyGames.BubbleShooter
 		private List<Transform> bubblesToDrop;
 		private List<Transform> bubblesToDissolve;
 		public Shooter shootScript;
-		public GameObject explosionPrefab;
-		public GameObject WinMenu;
+        //public GameObject explosionPrefab;
+		public GameObject winMenu;
 		public GameObject LoseMenu;
 		public GameObject winScore;
 		public GameObject winThrows;
@@ -47,13 +48,39 @@ namespace FirstPartyGames.BubbleShooter
 		public Transform bottomLimit;
 		public float dropSpeed = 50f;
 		public string gameState = "play";
-		private bool hitABomb = false;
+		//private bool hitABomb = false;
 		public bool isDissolving = false;
 		public float dissolveSpeed = 2f;
 		public float RayDistance = 200f;
+		[SerializeField] private float gameDuration = 120f;
+		[SerializeField] private Text timerText;
+		private float timer;
 
 		private void Update()
 		{
+			
+			if (timer > 0 )
+
+			{
+				timer -= Time.deltaTime;
+				UpdateTimerUI();
+
+            }
+			else
+            {
+				timer = 0f;
+				UpdateTimerUI();
+				LevelManager.instance.ClearLevel();
+                //LoseMenu.SetActive(true);
+                shootScript.canShoot = false;
+				ScoreManager man = ScoreManager.GetInstance();
+				winScore.GetComponent<Text>().text = man.GetScore().ToString();
+				winThrows.GetComponent<Text>().text = man.GetThrows().ToString();
+				winMenu.SetActive(true);
+				Debug.Log("Game Over");
+
+			}
+
 			if (isDissolving)
 			{
 				foreach (Transform bubble in bubblesToDissolve)
@@ -97,40 +124,40 @@ namespace FirstPartyGames.BubbleShooter
 			bubblesToDissolve.Clear();
 		}
 
-		public void ToggleGameState()
-		{
-			if (gameState == "play")
-			{
-				playBtn.GetComponent<Image>().color = Color.gray;
-				gameState = "pause";
-				LightObj.GetComponent<UnityEngine.Rendering.Universal.Light2D>().intensity = 0.4f;
-				PauseGame();
-			}
-			else if (gameState == "pause")
-			{
-				playBtn.GetComponent<Image>().color = Color.white;
-				gameState = "play";
-				LightObj.GetComponent<UnityEngine.Rendering.Universal.Light2D>().intensity = 1;
+        public void ToggleGameState()
+        {
+            if (gameState == "play")
+            {
+                playBtn.GetComponent<Image>().color = Color.gray;
+                gameState = "pause";
+                LightObj.GetComponent<UnityEngine.Rendering.Universal.Light2D>().intensity = 0.1f;
+                PauseGame();
+            }
+            else if (gameState == "pause")
+            {
+                playBtn.GetComponent<Image>().color = Color.white;
+                gameState = "play";
+                LightObj.GetComponent<UnityEngine.Rendering.Universal.Light2D>().intensity = 1;
 				ResumeGame();
-			}
-		}
+            }
+        }
 
-		public void RestartGame()
+        public void RestartGame()
 		{
 			LevelManager.instance.ClearLevel();
 			shootScript.canShoot = false;
 			startUI.SetActive(true);
 			gameState = "play";
+			timer = gameDuration;
+			UpdateTimerUI();
 		}
 
 		public void RestartGameGameOver()
 		{
-			LevelManager.instance.ClearLevel();
+			RestartGame();
+			winMenu.SetActive(false);
+			LoseMenu.SetActive(false);
 
-			shootScript.canShoot = false;
-			WinMenu.SetActive(false);
-			startUI.SetActive(true);
-			gameState = "play";
 		}
 
 
@@ -165,9 +192,11 @@ namespace FirstPartyGames.BubbleShooter
 
 			sequenceBubbles.Clear();
 			CheckBubbleSequence(currentBubble);
-			ProcessSpecialBubbles(currentBubble);
+			//ProcessSpecialBubbles(currentBubble);
 
-			if ((sequenceBubbles.Count >= SEQUENCE_SIZE) || hitABomb)
+			//if ((sequenceBubbles.Count >= SEQUENCE_SIZE) || hitABomb)
+			if (sequenceBubbles.Count >= SEQUENCE_SIZE )
+
 			{
 				ProcessBubblesInSequence();
 				ProcessDisconectedBubbles();
@@ -175,14 +204,15 @@ namespace FirstPartyGames.BubbleShooter
 
 			sequenceBubbles.Clear();
 			LevelManager.instance.UpdateListOfBubblesInScene();
-			hitABomb = false;
+			//hitABomb = false;
 
 			if (LevelManager.instance.bubblesInScene.Count == 0)
 			{
 				ScoreManager man = ScoreManager.GetInstance();
 				winScore.GetComponent<Text>().text = man.GetScore().ToString();
 				winThrows.GetComponent<Text>().text = man.GetThrows().ToString();
-				WinMenu.SetActive(true);
+				timer = 0;
+				winMenu.SetActive(true);
 			}
 			else
 			{
@@ -206,6 +236,8 @@ namespace FirstPartyGames.BubbleShooter
 				&& t.position.y < bottomLimit.position.y)
 				{
 					LevelManager.instance.ClearLevel();
+					timer = 0f;
+					UpdateTimerUI();
 					LoseMenu.SetActive(true);
 					shootScript.canShoot = false;
 					break;
@@ -219,7 +251,7 @@ namespace FirstPartyGames.BubbleShooter
 
 			Bubble bubbleScript = currentBubble.GetComponent<Bubble>();
 			List<Transform> neighbours = bubbleScript.GetNeighbours();
-
+			Debug.Log("Checking sequence for bubble: " + currentBubble.position);
 			foreach (Transform t in neighbours)
 			{
 				if (!sequenceBubbles.Contains(t))
@@ -232,53 +264,56 @@ namespace FirstPartyGames.BubbleShooter
 					}
 				}
 			}
-		}
+			Debug.Log("Sequence bubbles count: " + sequenceBubbles.Count);
+		
+	    }
 
-		private void ProcessSpecialBubbles(Transform currentBubble)
+        //private void ProcessSpecialBubbles(Transform currentBubble)
+        //{
+        //    Bubble bubbleScript = currentBubble.GetComponent<Bubble>();
+        //    List<Transform> neighbours = bubbleScript.GetNeighbours();
+
+        //    foreach (Transform t in neighbours)
+        //    {
+        //        //Bubble bScript = t.GetComponent<Bubble>();
+
+        //        //if (bScript.bubbleColor == Bubble.BubbleColor.Bomb)
+        //        //{
+        //        //    hitABomb = true;
+
+        //        //    //create explosion effect
+        //        //    GameObject explosion = Instantiate(explosionPrefab, t.position, Quaternion.identity);
+        //        //    explosion.transform.localScale = new Vector3(25f, 25f, 1f);
+        //        //    Destroy(explosion, 0.5f);
+
+        //        //    //destroy the bomb
+        //        //    Destroy(t.gameObject);
+
+        //        //    //destroy the neighbours of bomb
+        //        //    foreach (Transform t2 in bScript.GetNeighbours())
+        //        //    {
+        //        //        if (sequenceBubbles.Contains(t2))
+        //        //            sequenceBubbles.Remove(t2);
+
+        //        //        Destroy(t2.gameObject);
+        //        //    }
+
+        //        //    ScoreManager.GetInstance().AddScore(10);
+        //        //}
+
+        //    }
+        //}
+
+        private void ProcessBubblesInSequence()
 		{
-			Bubble bubbleScript = currentBubble.GetComponent<Bubble>();
-			List<Transform> neighbours = bubbleScript.GetNeighbours();
-
-			foreach (Transform t in neighbours)
-			{
-				Bubble bScript = t.GetComponent<Bubble>();
-
-				if (bScript.bubbleColor == Bubble.BubbleColor.Bomb)
-				{
-					hitABomb = true;
-
-					//create explosion effect
-					GameObject explosion = Instantiate(explosionPrefab, t.position, Quaternion.identity);
-					explosion.transform.localScale = new Vector3(25f, 25f, 1f);
-					Destroy(explosion, 0.5f);
-
-					//destroy the bomb
-					Destroy(t.gameObject);
-
-					//destroy the neighbours of bomb
-					foreach (Transform t2 in bScript.GetNeighbours())
-					{
-						if (sequenceBubbles.Contains(t2))
-							sequenceBubbles.Remove(t2);
-
-						Destroy(t2.gameObject);
-					}
-
-					ScoreManager.GetInstance().AddScore(10);
-				}
-
-			}
-		}
-
-		private void ProcessBubblesInSequence()
-		{
-			if (hitABomb)
-				AudioManager.instance.PlaySound("explosion");
-			else
+			//if (hitABomb)
+			//	AudioManager.instance.PlaySound("explosion");
+			//else
 				AudioManager.instance.PlaySound("destroy");
 
 			foreach (Transform t in sequenceBubbles)
 			{
+				Debug.Log("Processing bubble for dissolution: " + t.position);
 				if (!bubblesToDissolve.Contains(t))
 				{
 					ScoreManager.GetInstance().AddScore(1);
@@ -288,6 +323,7 @@ namespace FirstPartyGames.BubbleShooter
 					bubblesToDissolve.Add(t);
 				}
 			}
+			Debug.Log("Bubbles to dissolve count: " + bubblesToDissolve.Count);
 			isDissolving = true;
 		}
 
@@ -369,6 +405,21 @@ namespace FirstPartyGames.BubbleShooter
 				}
 			}
 			bubblesToDrop.Clear();
+		}
+
+		public void StartTimer()
+		{
+			timer = gameDuration;
+			UpdateTimerUI();
+		}
+
+		private void UpdateTimerUI()
+		{
+			//timerText.text = "Time: " + Mathf.CeilToInt(timer).ToString();
+			int minutes = Mathf.FloorToInt(timer / 60);
+			int seconds = Mathf.CeilToInt(timer % 60);
+
+			timerText.text = string.Format("{0}:{1:00}", minutes, seconds);
 		}
 
 		#endregion
