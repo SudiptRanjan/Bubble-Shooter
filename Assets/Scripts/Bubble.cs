@@ -1,7 +1,6 @@
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
-using DG.Tweening;
+using System.Collections;
 
 namespace FirstPartyGames.BubbleShooter
 {
@@ -17,15 +16,14 @@ namespace FirstPartyGames.BubbleShooter
 
 		private void OnCollisionEnter2D(Collision2D collision)
 		{
-			//Debug.Log("Collided");
+
+
 			if ((collision.gameObject.tag == "Bubble" && collision.gameObject.GetComponent<Bubble>().isFixed) || collision.gameObject.tag == "Limit")
 			{
 				if (!isFixed)
-				HasCollided();
-                transform.DOScale(32f, 0.2f).SetEase(Ease.OutQuad).OnComplete(() => transform.DOScale(28f, 0.2f).SetEase(Ease.InQuad));
+					HasCollided();
 
 			}
-
 		}
 
 		private void HasCollided()
@@ -36,14 +34,15 @@ namespace FirstPartyGames.BubbleShooter
 			LevelManager.instance.SetAsBubbleAreaChild(transform);
 			GameManager.instance.ProcessTurn(transform);
 			
-
 		}
+
+		
 
 		public List<Transform> GetNeighbours()
 		{
 			List<RaycastHit2D> hits = new List<RaycastHit2D>();
 			List<Transform> neighbours = new List<Transform>();
-			
+
 			hits.Add(Physics2D.Raycast(new Vector2(transform.position.x - raycastOffset, transform.position.y), Vector3.left, raycastRange));
 			hits.Add(Physics2D.Raycast(new Vector2(transform.position.x + raycastOffset, transform.position.y), Vector3.right, raycastRange));
 			hits.Add(Physics2D.Raycast(new Vector2(transform.position.x - raycastOffset, transform.position.y + raycastOffset), new Vector2(-1f, 1f), raycastRange));
@@ -58,8 +57,8 @@ namespace FirstPartyGames.BubbleShooter
 					neighbours.Add(hit.transform);
 				}
 			}
-           
-            return neighbours;
+
+			return neighbours;
 		}
 
 		void OnBecameInvisible()
@@ -69,9 +68,7 @@ namespace FirstPartyGames.BubbleShooter
 
 		public enum BubbleColor
 		{
-			//Blue, Yellow, Red, Purple, Bomb
-			Blue, Yellow, Red, Purple
-
+			Blue, Yellow, Red, Purple, Bomb
 		}
 
 		public void OnDrawGizmosSelected()
@@ -80,12 +77,11 @@ namespace FirstPartyGames.BubbleShooter
 			foreach (Transform tr in GetNeighbours())
 			{
 				Gizmos.DrawLine(transform.position, tr.position);
-
 			}
 		}
-
-        
-    }
+	}
 
 }
+
+
 

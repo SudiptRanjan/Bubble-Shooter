@@ -101,11 +101,11 @@ namespace FirstPartyGames.BubbleShooter
             }
             else
             {
-                // if (!colors.Contains(nextBubble.GetComponent<Bubble>().bubbleColor.ToString()))
-                // {
-                //     Destroy(nextBubble);
-                //     nextBubble = InstantiateNewBubble(bubblesInScene);
-                // }
+                //if (!colors.Contains(nextBubble.GetComponent<Bubble>().bubbleColor.ToString()))
+                //{
+                //    Destroy(nextBubble);
+                //    nextBubble = InstantiateNewBubble(bubblesInScene);
+                //}
             }
 
             if (currentBubble == null)
@@ -142,8 +142,12 @@ namespace FirstPartyGames.BubbleShooter
                     }
                     else if (hitWall.collider != null)
                     {
-                        Vector2 reflectionDirection = Vector2.Reflect(lookDirection.normalized, hitWall.normal);
-                        Vector2 reflectedWorldEndPoint = hitWall.point + reflectionDirection * 100f;
+                        //Vector2 reflectionDirection = Vector2.Reflect(lookDirection.normalized, hitWall.normal );
+                        Vector2 reflectionDirection = Vector2.Reflect(lookDirection.normalized, hitWall.normal );
+
+                        Vector2 reflectedWorldEndPoint = (hitWall.point + reflectionDirection * 100f);
+                       
+
 
                         lineRenderer.positionCount = 4;
                         lineRenderer.SetPosition(2, hitWall.point);
