@@ -34,11 +34,27 @@ namespace FirstPartyGames.BubbleShooter
 			grid = GetComponent<Grid>();
 		}
 
+		//public void StartButtonGame()
+		//{
+		//	GameManager.instance.startUI.SetActive(false);
+		//	GameManager.instance.levelsUI.SetActive(true);
+		//	int randomLevel = Random.Range(0, levels.Count);
+		//	GameManager.instance.StartTimer();
+		//	StartLevel(randomLevel);
+		//}
+
 		public void StartButtonGame()
 		{
 			GameManager.instance.startUI.SetActive(false);
 			GameManager.instance.levelsUI.SetActive(true);
-			int randomLevel = Random.Range(0, levels.Count);
+
+			// Choose a random level different from the current one
+			int randomLevel;
+			do
+			{
+				randomLevel = Random.Range(0, levels.Count);
+			} while (randomLevel == LevelManager.instance.currentLevel);
+
 			GameManager.instance.StartTimer();
 			StartLevel(randomLevel);
 		}

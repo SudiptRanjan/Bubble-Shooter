@@ -143,11 +143,12 @@ namespace FirstPartyGames.BubbleShooter
                     {
                         lineRenderer.positionCount = 2;
                         lineRenderer.SetPosition(1, hitBubble.point);
+
                     }
                     else if (hitWall.collider != null)
                     {
                         //Vector2 reflectionDirection = Vector2.Reflect(lookDirection.normalized, hitWall.normal );
-                        Vector2 reflectionDirection = Vector2.Reflect(lookDirection.normalized, hitWall.normal );
+                        Vector2 reflectionDirection = Vector2.Reflect(lookDirection, hitWall.normal );
 
                         Vector2 reflectedWorldEndPoint = (hitWall.point + reflectionDirection * 100f);
                        
@@ -156,12 +157,36 @@ namespace FirstPartyGames.BubbleShooter
                         lineRenderer.positionCount = 4;
                         lineRenderer.SetPosition(2, hitWall.point);
                         lineRenderer.SetPosition(3, reflectedWorldEndPoint);
-                        if (hitBubble.collider != null)
+                        float reflectionDistance = Vector2.Distance(hitWall.point, reflectedWorldEndPoint);
+                        RaycastHit2D hitBubbleAfterReflection = Physics2D.Raycast(hitWall.point, reflectionDirection, reflectionDistance, bubble);
+                        RaycastHit2D hitTopWallAfterReflection = Physics2D.Raycast(hitWall.point, reflectionDirection, reflectionDistance, topWall);
+                        RaycastHit2D hitWallAfterReflection = Physics2D.Raycast(hitWall.point, reflectionDirection, reflectionDistance, wall);
+
+
+                        if (hitBubbleAfterReflection.collider != null)
                         {
                             Debug.Log("Hit the bubbles");
                             lineRenderer.positionCount = 4;
-                            lineRenderer.SetPosition(2, hitBubble.point);
+                            lineRenderer.SetPosition(2, hitWall.point);
+                            lineRenderer.SetPosition(3, hitBubbleAfterReflection.point);
+
                         }
+                        else if(hitTopWallAfterReflection.collider !=null)
+                        {
+                            Debug.Log("Hit the Top wall");
+                            lineRenderer.positionCount = 4;
+                            lineRenderer.SetPosition(2, hitWall.point);
+                            lineRenderer.SetPosition(3, hitTopWallAfterReflection.point);
+                        }
+                        else
+                        {
+                            Debug.Log("Hit the wall");
+                            lineRenderer.positionCount = 4;
+                            lineRenderer.SetPosition(2, hitWall.point);
+                            lineRenderer.SetPosition(3, hitWallAfterReflection.point);
+                        }
+
+
 
                     }
                     else
