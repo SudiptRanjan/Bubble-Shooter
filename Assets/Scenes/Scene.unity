@@ -2306,7 +2306,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &775961719
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3734,7 +3734,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1308115689
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5568,7 +5568,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &2096565850
 RectTransform:
   m_ObjectHideFlags: 0
@@ -5772,6 +5772,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Level 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6088372540353073389, guid: 40af3ceb5e091264c9658f14ff4538b0,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -6781,7 +6786,7 @@ MonoBehaviour:
   isDissolving: 0
   dissolveSpeed: 2
   RayDistance: 200
-  gameDuration: 30
+  gameDuration: 150
   timerText: {fileID: 1029236911}
   gameOver: 0
 --- !u!4 &6678577467272666029

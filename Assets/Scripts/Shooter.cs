@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
-
 namespace FirstPartyGames.BubbleShooter
 {
     public class Shooter : MonoBehaviour
@@ -85,7 +84,12 @@ namespace FirstPartyGames.BubbleShooter
             nextBubble = null;
             currentBubble = null;
             CreateNextBubble();
-            canShoot = true;
+           
+            
+                canShoot = true;
+
+            //Debug.Log("Can shoot after game over "+ canShoot);
+
         }
 
         public void CreateNextBubble()
@@ -174,8 +178,9 @@ namespace FirstPartyGames.BubbleShooter
 
             if (canShoot && Input.GetMouseButtonUp(0) && (Camera.main.ScreenToWorldPoint(Input.mousePosition).y > bottomShootPoint.transform.position.y))
             {
+                //Debug.Log("Shoot one ball after game over " + canShoot);
                 canShoot = false;
-                Shoot();
+                Shoot(); 
             }
         }
 

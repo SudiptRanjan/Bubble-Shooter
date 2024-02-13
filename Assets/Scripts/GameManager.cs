@@ -18,8 +18,8 @@ namespace FirstPartyGames.BubbleShooter
 			winMenu.SetActive(false);
 			LoseMenu.SetActive(false);
 			levelsUI.SetActive(false);
-            StartTimer();
-            sequenceBubbles = new List<Transform>();
+			StartTimer();
+			sequenceBubbles = new List<Transform>();
 			connectedBubbles = new List<Transform>();
 			bubblesToDrop = new List<Transform>();
 			bubblesToDissolve = new List<Transform>();
@@ -52,36 +52,36 @@ namespace FirstPartyGames.BubbleShooter
 		public float RayDistance = 200f;
 		[SerializeField] private float gameDuration = 120f;
 		[SerializeField] private Text timerText;
-		[SerializeField] private bool gameOver = false;
+		public bool gameOver = false;
 		private float timer;
+
 
 		private void Update()
 		{
-			
-			if (timer > 0 )
 
+			if (timer > 0 && gameState == "play")
 			{
 				timer -= Time.deltaTime;
 				UpdateTimerUI();
 
-            }
+			}
 			else
-            {
-				
-				if(!gameOver)
-                {
+			{
+
+				if (!gameOver)
+				{
+					shootScript.canShoot = false;
+					ClearAllBubbles();
 					gameOver = true;
 					timer = 0f;
 					UpdateTimerUI();
 					LevelManager.instance.ClearLevel();
-					shootScript.canShoot = false;
 					ScoreManager man = ScoreManager.GetInstance();
 					winScore.GetComponent<Text>().text = man.GetScore().ToString();
 					winThrows.GetComponent<Text>().text = man.GetThrows().ToString();
 					winMenu.SetActive(true);
-					Debug.Log("Game Over" + gameOver);
 				}
-			
+
 
 			}
 
@@ -120,6 +120,16 @@ namespace FirstPartyGames.BubbleShooter
 			}
 		}
 
+		public void ClearAllBubbles()
+		{
+			Bubble[] bubbles = FindObjectsOfType<Bubble>();
+
+			foreach (Bubble bubble in bubbles)
+			{
+				Destroy(bubble.gameObject);
+			}
+		}
+
 		private void EmptyDissolveList()
 		{
 			foreach (Transform bubble in bubblesToDissolve)
@@ -128,25 +138,25 @@ namespace FirstPartyGames.BubbleShooter
 			bubblesToDissolve.Clear();
 		}
 
-        public void ToggleGameState()
-        {
-            if (gameState == "play")
-            {
-                playBtn.GetComponent<Image>().color = Color.gray;
-                gameState = "pause";
-                LightObj.GetComponent<UnityEngine.Rendering.Universal.Light2D>().intensity = 0.1f;
-                PauseGame();
-            }
-            else if (gameState == "pause")
-            {
-                playBtn.GetComponent<Image>().color = Color.white;
-                gameState = "play";
-                LightObj.GetComponent<UnityEngine.Rendering.Universal.Light2D>().intensity = 1;
+		public void ToggleGameState()
+		{
+			if (gameState == "play")
+			{
+				playBtn.GetComponent<Image>().color = Color.gray;
+				gameState = "pause";
+				LightObj.GetComponent<UnityEngine.Rendering.Universal.Light2D>().intensity = 0.1f;
+				PauseGame();
+			}
+			else if (gameState == "pause")
+			{
+				playBtn.GetComponent<Image>().color = Color.white;
+				gameState = "play";
+				LightObj.GetComponent<UnityEngine.Rendering.Universal.Light2D>().intensity = 1;
 				ResumeGame();
-            }
-        }
+			}
+		}
 
-        public void RestartGame()
+		public void RestartGame()
 		{
 			LevelManager.instance.ClearLevel();
 			shootScript.canShoot = false;
@@ -198,8 +208,8 @@ namespace FirstPartyGames.BubbleShooter
 
 			sequenceBubbles.Clear();
 			CheckBubbleSequence(currentBubble);
-			
-			if (sequenceBubbles.Count >= SEQUENCE_SIZE )
+
+			if (sequenceBubbles.Count >= SEQUENCE_SIZE)
 
 			{
 				ProcessBubblesInSequence();
@@ -211,16 +221,22 @@ namespace FirstPartyGames.BubbleShooter
 
 			if (LevelManager.instance.bubblesInScene.Count == 0)
 			{
+				shootScript.canShoot = false;
 				ScoreManager man = ScoreManager.GetInstance();
 				winScore.GetComponent<Text>().text = man.GetScore().ToString();
 				winThrows.GetComponent<Text>().text = man.GetThrows().ToString();
 				timer = 0;
 				winMenu.SetActive(true);
+
 			}
 			else
 			{
 				shootScript.CreateNextBubble();
-				shootScript.canShoot = true;
+				if (!gameOver)
+				{
+					shootScript.canShoot = true;
+
+				}
 			}
 
 			ProcessBottomLimit();
@@ -238,11 +254,11 @@ namespace FirstPartyGames.BubbleShooter
 				if (t.GetComponent<Bubble>().isConnected
 				&& t.position.y < bottomLimit.position.y)
 				{
+					shootScript.canShoot = false;
 					LevelManager.instance.ClearLevel();
 					timer = 0f;
 					UpdateTimerUI();
 					LoseMenu.SetActive(true);
-					shootScript.canShoot = false;
 					break;
 				}
 			}
@@ -254,7 +270,6 @@ namespace FirstPartyGames.BubbleShooter
 
 			Bubble bubbleScript = currentBubble.GetComponent<Bubble>();
 			List<Transform> neighbours = bubbleScript.GetNeighbours();
-			//Debug.Log("Checking sequence for bubble: " + currentBubble.position);
 			foreach (Transform t in neighbours)
 			{
 				if (!sequenceBubbles.Contains(t))
@@ -267,15 +282,14 @@ namespace FirstPartyGames.BubbleShooter
 					}
 				}
 			}
-			//Debug.Log("Sequence bubbles count: " + sequenceBubbles.Count);
-		
-	    }
 
-   
-        private void ProcessBubblesInSequence()
+		}
+
+
+		private void ProcessBubblesInSequence()
 		{
-			
-				AudioManager.instance.PlaySound("destroy");
+
+			AudioManager.instance.PlaySound("destroy");
 
 			foreach (Transform t in sequenceBubbles)
 			{
@@ -345,31 +359,17 @@ namespace FirstPartyGames.BubbleShooter
 			foreach (Transform bubble in LevelManager.instance.bubblesArea)
 			{
 				Bubble bubbleScript = bubble.GetComponent<Bubble>();
-                //Debug.Log("----The current bundle  is not avaliable  ");
 
-                //if (bubbleScript != null)
-                //            {
-                //	//Debug.Log("----The current bundle  is avaliable ");
-                //	if (!bubbleScript.isConnected)
-                //	{
-                //		if (!bubblesToDrop.Contains(bubble))
-                //		{
-                //			ScoreManager.GetInstance().AddScore(2);
-                //			bubble.tag = "Untagged";
-                //			bubblesToDrop.Add(bubble);
-                //		}
-                //	}
-                //}
-                if (!bubbleScript.isConnected)
-                {
-                    if (!bubblesToDrop.Contains(bubble))
-                    {
-                        ScoreManager.GetInstance().AddScore(2);
-                        bubble.tag = "Untagged";
-                        bubblesToDrop.Add(bubble);
-                    }
-                }
-            }
+				if (!bubbleScript.isConnected)
+				{
+					if (!bubblesToDrop.Contains(bubble))
+					{
+						ScoreManager.GetInstance().AddScore(2);
+						bubble.tag = "Untagged";
+						bubblesToDrop.Add(bubble);
+					}
+				}
+			}
 		}
 
 		private void DropAll()
@@ -411,4 +411,3 @@ namespace FirstPartyGames.BubbleShooter
 		}
 	}
 }
-
